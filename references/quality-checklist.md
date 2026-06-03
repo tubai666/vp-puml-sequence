@@ -5,6 +5,9 @@ Use this checklist before claiming a VP PUML sequence conversion is complete.
 ## Source Integrity
 
 - `.puml` files were not modified unless explicitly requested.
+- If `.puml` files were absent, generated PUML is saved as an intermediate source artifact before VP generation.
+- Derived PUML is traceable to requirements, code, or clearly marked assumptions.
+- Derived PUML follows UML sequence norms: actors/lifelines are clear, calls and returns are ordered, creates are explicit, activations are scoped, and branches/loops/options use combined fragments.
 - Every declared participant appears or is intentionally handled.
 - Message order and message text are preserved.
 - Notes, dividers, guards, and fragment conditions are preserved.

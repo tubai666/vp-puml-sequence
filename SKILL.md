@@ -1,28 +1,32 @@
 ---
 name: vp-puml-sequence
-description: Use when converting PlantUML/PUML sequence diagrams into Visual Paradigm .vpp projects through VP OpenAPI, preserving UML sequence semantics, generating Boundary/Control/Entity layers, activations, fragments, notes, numbering, and exporting real PNG/SVG images. Trigger for Visual Paradigm, VP OpenAPI, PUML-to-VPP, sequence diagram reproduction, real VP export, PNG/SVG export from .vpp, or fixing VP sequence diagram layout/numbering/fragment range issues.
+description: Use when converting project requirements, code, or PlantUML/PUML sequence diagrams into Visual Paradigm .vpp projects through VP OpenAPI, preserving UML sequence semantics, generating/reviewing PUML when missing, creating Boundary/Control/Entity layers, activations, fragments, notes, numbering, and exporting real PNG/SVG images. Trigger for Visual Paradigm, VP OpenAPI, requirements-to-PUML, PUML-to-VPP, sequence diagram reproduction, real VP export, PNG/SVG export from .vpp, or fixing VP sequence diagram layout/numbering/fragment range issues.
 ---
 
 # VP PUML Sequence
 
 ## Core Rule
 
-Treat the `.puml` files and project requirements as the source of truth. Use PlantUML-rendered images only as visual references. When PUML and Visual Paradigm differ, preserve complete UML sequence semantics with VP-native tools rather than editing, deleting, or inventing content.
+Treat project requirements and existing `.puml` files as the source of truth. If PUML is missing, derive PlantUML from requirements/code first, marking assumptions and following UML sequence diagram norms. Use PlantUML-rendered images only as visual references. When PUML and Visual Paradigm differ, preserve complete UML sequence semantics with VP-native tools rather than editing, deleting, or inventing content.
 
 ## Workflow
 
-1. Inspect the PUML directory, assignment/project requirements, existing `.vpp` files, and prior exports before changing anything.
-2. Read `references/puml-mapping.md` before designing the parser or layout.
-3. Read `references/vp-openapi.md` before writing or modifying the VP plugin/command-line flow.
-4. Parse PUML as an event stream, not only as messages. Preserve participant declarations, boxes, messages, creates, activations, fragments, operands, notes, and dividers.
-5. Generate VP native interaction diagrams with lifelines, actors, messages, activations, combined fragments, operands, notes, and layer backgrounds.
-6. Save to a new non-destructive `.vpp` such as `*-polished.vpp`; do not overwrite open, locked, or comparison `.vpp` files.
-7. Export real PNG and SVG with VP `ExportDiagramImage`; do not use screenshots as final export artifacts.
-8. Run `scripts/verify_vp_sequence_outputs.sh` and visually inspect representative PNGs before claiming completion.
+1. Inspect assignment/project requirements, code, existing PUML, existing `.vpp` files, and prior exports before changing anything.
+2. If no `.puml` exists, read `references/source-to-puml.md` and generate reviewable PlantUML files first.
+3. Read `references/puml-mapping.md` before designing the parser or layout.
+4. Read `references/vp-openapi.md` before writing or modifying the VP plugin/command-line flow.
+5. Parse PUML as an event stream, not only as messages. Preserve participant declarations, boxes, messages, creates, activations, fragments, operands, notes, and dividers.
+6. Generate VP native interaction diagrams with lifelines, actors, messages, activations, combined fragments, operands, notes, and layer backgrounds.
+7. Save to a new non-destructive `.vpp` such as `*-polished.vpp`; do not overwrite open, locked, or comparison `.vpp` files.
+8. Export real PNG and SVG with VP `ExportDiagramImage`; do not use screenshots as final export artifacts.
+9. Run `scripts/verify_vp_sequence_outputs.sh` and visually inspect representative PNGs before claiming completion.
 
 ## Hard Rules
 
 - Do not modify `.puml` source unless the user explicitly asks.
+- If PUML is absent, generate `.puml` as a transparent intermediate artifact before VP generation.
+- Separate requirements-backed facts from assumptions; do not present inferred calls as if they were stated.
+- Keep derived PUML UML-compliant: clear lifelines, ordered messages, meaningful returns, create messages, activations, and fragments for branches/loops/options.
 - Do not use SVG/HTML-only reproduction when the deliverable is `.vpp`.
 - Avoid VP auto nested numbering: force manual single-level sequence numbering.
 - Avoid duplicate classifier binding when it causes names like `GameUI5`; lifeline names can stand alone.
@@ -35,6 +39,8 @@ Treat the `.puml` files and project requirements as the source of truth. Use Pla
 ## Implementation Shape
 
 Prefer an event model with these records: `Participant`, `MessageSpec`, `ActivationRange`, `FragmentSpec`, `NoteSpec`, and `DividerSpec`.
+
+When deriving PUML from requirements, create one focused sequence diagram per user-facing scenario or assignment-required workflow. Use Boundary/Control/Entity participants and produce readable PlantUML that can be reviewed before VP conversion.
 
 For fragments, maintain a stack. On each parsed message, add sender and receiver aliases to every open fragment. On `else`, record an operand start message index. On `end`, close the top fragment. Compute fragment bounds from the min/max x positions of actual covered lifelines.
 
