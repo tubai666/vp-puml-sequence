@@ -1,0 +1,7 @@
+interface:
+  display_name: "VP PUML Sequence"
+  short_description: "Convert PUML to VP sequence projects."
+  default_prompt: "Use $vp-puml-sequence to convert these PUML sequence diagrams into a Visual Paradigm .vpp project and export matching PNG/SVG images."
+
+policy:
+  allow_implicit_invocation: true
